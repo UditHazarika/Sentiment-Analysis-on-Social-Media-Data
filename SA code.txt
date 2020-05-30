@@ -1,0 +1,73 @@
+import tweepy
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+import time
+
+
+def percentage(part, whole):
+    return 100 * float(part)/float(whole)
+
+consumerKey = "4z19gvQ5AFEgT4HSONJNNLekp"
+consumerSecret = "CO3LfaPjWfjWex2QJPUK0PUpJMXAIrVO1Djx2vTYLyWCetrmbV"
+accessToken = "915734935-J79OWI90i4Q1xKjcZJw6S27hAeqXSvpoMmrSvKCd"
+accessTokenSecret = "asNkRagw59M2N4QHnrDuBpYGHtEDKoiLKYrqQAGWA7C4x"
+
+auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
+auth.set_access_token(accessToken, accessTokenSecret)
+api= tweepy.API(auth)
+
+searchTerm = input("Enter keyword/hashtag to search about: ")
+noOfSearchTerm = int(input("Enter how many tweets to analyze: "))
+
+
+tweets = tweepy.Cursor(api.search, q=searchTerm).items(noOfSearchTerm)
+
+
+positive = 0
+negative = 0
+neutral = 0
+polarity = 0
+
+for tweet in tweets:
+    print(tweet.text)
+    analysis = TextBlob(tweet.text)
+    polarity += analysis.sentiment.polarity
+
+    if(analysis.sentiment.polarity ==0):
+        neutral += 1
+    elif(analysis.sentiment.polarity <0.00):p
+            negative += 1
+    elif(analysis.sentiment.polarity >0.00):
+                positive += 1
+
+positive = percentage(positive, noOfSearchTerm)
+negative = percentage(negative, noOfSearchTerm)
+neutral = percentage(neutral, noOfSearchTerm)
+polarity = percentage(polarity, noOfSearchTerm)
+
+positive = format(positive, '.2f')
+negative = format(negative, '.2f')
+neutral = format(neutral, '.2f')
+
+
+print("How people are reacting on " + searchTerm + " by analyzing " + str(noOfSearchTerm) + "Tweets.")
+if (polarity==0):
+    print("Neutral")
+elif (polarity<0.00):
+    print("Negative")
+elif(polarity>0.00):
+    print("Positive")
+
+
+
+labels = ['Positive[' + str(positive) + '%]', 'Neutral[' + str(neutral) + '%]', 'Negative[' + str(negative)+ '%]']
+
+sizes = [positive, neutral, negative]
+colors = ['yellowgreen', 'orange', 'blue']
+
+patches, texts = plt.pie(sizes, colors=colors, startangle=90)
+plt.legend(patches, labels, loc="best")
+plt.tittle("How people are reacting on " + searchTerm + " by analyzing " + str(noOfSearchTerm) + " Tweets.")
+plt.axis('equal')
+plt.tight_layout()
+plt.show()
